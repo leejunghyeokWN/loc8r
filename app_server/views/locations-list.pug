@@ -1,0 +1,42 @@
+extends layout
+
+block content
+  .row.banner 
+    .col-12 
+      h1 Loc8r
+        small &nbsp;Find places to work with wifi near you!
+  .row
+    .col-12.col-md-8 
+      .card 
+        .card-block 
+          h4.d-flex
+            a(href="/location").overflow-auto Starcups
+            small &nbsp;
+              i.fas.fa-star
+              i.fas.fa-star
+              i.fas.fa-star
+              i.far.fa-star
+              i.far.fa-star
+            span.badge.badge-pill.badge-default.ms-auto 100m
+          p.address 125 High Street, Reading, Rg6 1PS
+          .facilities
+            span.badge.badge-warning Hot drinks
+            span.badge.badge-warning Food
+            span.badge.badge-warning Premium wifi
+      .card 
+        .card-block 
+          h4.d-flex
+            a(href="/location").overflow-auto THREESOMEPLACE
+            small &nbsp;
+              i.fas.fa-star
+              i.fas.fa-star
+              i.fas.fa-star
+              i.far.fa-star
+              i.far.fa-star
+            span.badge.badge-pill.badge-default.ms-auto.me-0 190m
+          p.address 127 High Street, Reading, Rg6 1PS
+          .facilities
+            span.badge.badge-warning Cold drinks
+            span.badge.badge-warning Premium wifi
+    .col-12.col-md-4
+      p.lead Loc8r helps you find places to work when out and about.
