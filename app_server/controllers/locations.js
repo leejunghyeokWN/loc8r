@@ -10,24 +10,38 @@ const homelist = (req, res) => {
       locations: [
         {
           name: 'Starcups',
-          address: '125 High Street, Reading, RG6 1PS',
+          address: '경기 안성시 비룡5길 30',
           rating: 3,
           facilities: ['Hot drinks', 'Food', 'Premium wifi'],
           distance: '100m'
         },
         {
           name: 'Cafe Hero',
-          address: '125 High Street, Reading, RG6 1PS',
+          address: '경기 안성시 중앙로 327',
           rating: 4,
           facilities: ['Hot drinks', 'Food', 'Premium wifi'],
           distance: '200m'
         },
         {
           name: 'Burger Queen',
-          address: '125 High Street, Reading, RG6 1PS',
-          rating: 2,
-          facilities: ['Food', 'Premium wifi'],
-          distance: '250m'
+          address: '경기 안성시 비룡로 41',
+          rating: 3,
+          facilities: ['Jazz', 'Premium wifi'],
+          distance: '260m'
+        },
+        {
+          name: 'Red pot',
+          address: '경기 안성시 비룡2길 24',
+          rating: 4,
+          facilities: ['Tea', 'Salad', 'Premium wifi'],
+          distance: '270m'
+        },
+        {
+          name: 'Green spot',
+          address: '경기 안성시 금산동',
+          rating: 4,
+          facilities: ['Tea', 'Salad', 'Premium wifi'],
+          distance: '270m'
         }
       ]
     }
@@ -47,7 +61,7 @@ const locationInfo = (req, res) => {
       },
       location: {
         name: 'Starcups',
-        address: '125 High Street, Reading, RG6 1PS',
+        address: '경기 안성시 비룡5길 30',
         rating: 3,
         facilities: ['Hot drinks', 'Food', 'Premium wifi'],
         coords: {lat: 37.014, lng: 127.267},
