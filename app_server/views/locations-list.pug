@@ -1,42 +1,23 @@
 extends layout
-
+include _includes/sharedHTMLfunctions
 block content
   .row.banner 
     .col-12 
-      h1 Loc8r
-        small &nbsp;Find places to work with wifi near you!
+      h1= pageHeader.title
+        small &nbsp;#{pageHeader.strapline}
   .row
     .col-12.col-md-8 
-      .card 
-        .card-block 
-          h4.d-flex
-            a(href="/location").overflow-auto Starcups
-            small &nbsp;
-              i.fas.fa-star
-              i.fas.fa-star
-              i.fas.fa-star
-              i.far.fa-star
-              i.far.fa-star
-            span.badge.badge-pill.badge-default.ms-auto 100m
-          p.address 125 High Street, Reading, Rg6 1PS
-          .facilities
-            span.badge.badge-warning Hot drinks
-            span.badge.badge-warning Food
-            span.badge.badge-warning Premium wifi
-      .card 
-        .card-block 
-          h4.d-flex
-            a(href="/location").overflow-auto THREESOMEPLACE
-            small &nbsp;
-              i.fas.fa-star
-              i.fas.fa-star
-              i.fas.fa-star
-              i.far.fa-star
-              i.far.fa-star
-            span.badge.badge-pill.badge-default.ms-auto.me-0 190m
-          p.address 127 High Street, Reading, Rg6 1PS
-          .facilities
-            span.badge.badge-warning Cold drinks
-            span.badge.badge-warning Premium wifi
+      each location in locations
+        .card 
+          .card-block 
+            h4.d-flex
+              a(href="/location")= location.name
+              small &nbsp;
+                +outputRating(location.rating)
+              span.badge.badge-pill.badge-default.ms-auto= location.distance
+            p.address= location.address
+            .facilities
+              each facility in location.facilities
+                span.badge.badge-warning= facility
     .col-12.col-md-4
-      p.lead Loc8r helps you find places to work when out and about.
+      p.lead= sidebar
