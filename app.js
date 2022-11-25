@@ -31,9 +31,10 @@ app.use('/api', (req, res, next)=>{
 });
 app.use('/api', apiRouter);
 app.use('/users', usersRouter);
-// app.get(/(\/about)|(\/location\/[a-z0-9]{24})/, function(req, res, next){
+app.get(/(\/about)|(\/location\/[a-z0-9]{24})/, function(req, res, next){
 app.get("*", function(req, res, next){
-    res.sendFile(path.join(__dirname, '../../build', 'index.html'));
+    res.send(__dirname);
+    res.sendFile(path.join(__dirname, 'app_public', 'build', 'index.html'));
 });
 
 // catch 404 and forward to error handler
