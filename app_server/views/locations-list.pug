@@ -9,17 +9,12 @@ block content
     .col-12.col-md-8 
       .error= message
       
-      each location in locations
-        .card 
-          .card-block 
-            h4
-              a(href=`/location/${location._id}`)= location.name
-              small &nbsp;
-                +outputRating(location.rating)
-              span.badge.badge-pill.badge-default.float-right= location.distance
-            p.address= location.address
-            .facilities
-              each facility in location.facilities
-                span.badge.badge-warning= facility
+      app-home-list
+      
     .col-12.col-md-4
       p.lead= sidebar
+  
+  block scripts
+    script(src='/build/main.252f5b35b88fc7c8.js')
+    script(src='/build/polyfills.370d7d818bf258bf.js')
+    script(src='/build/runtime.4d5522f94f9948c4.js')
