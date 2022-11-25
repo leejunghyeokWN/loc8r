@@ -6,7 +6,7 @@ var logger = require('morgan');
 require('./app_api/models/db');
 
 // var indexRouter = require('./app_server/routes/index');
-// var usersRouter = require('./app_server/routes/users');
+var usersRouter = require('./app_server/routes/users');
 var apiRouter = require('./app_api/routes/index');
 
 var app = express();
@@ -30,10 +30,10 @@ app.use('/api', (req, res, next)=>{
   next();
 });
 app.use('/api', apiRouter);
-// app.use('/users', usersRouter);
+app.use('/users', usersRouter);
 // app.get(/(\/about)|(\/location\/[a-z0-9]{24})/, function(req, res, next){
 app.get("*", function(req, res, next){
-    res.sendFile(path.join(__dirname, '../index.html'));
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 // catch 404 and forward to error handler
