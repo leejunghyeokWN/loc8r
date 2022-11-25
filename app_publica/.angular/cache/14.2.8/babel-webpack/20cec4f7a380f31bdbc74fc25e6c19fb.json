@@ -1,0 +1,1 @@
+{"ast":null,"code":"export const environment = {\n  apiBaseUrl: \"https://loc8r-hknu.herokuapp.com/api\",\n  production: true\n};","map":null,"metadata":{},"sourceType":"module"}
