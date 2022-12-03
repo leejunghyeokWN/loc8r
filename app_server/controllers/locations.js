@@ -3,18 +3,18 @@ var request = require('request');
 const apiOptions = {
   server: 'http://localhost:3000'
 };
-if(process.env.NODE_ENV === 'production'){
+if (process.env.NODE_ENV === 'production') {
   apiOptions.server = 'https://loc8r-hknu.herokuapp.com';
 }
 
-const renderHomepage = (req, res, responseBody) =>{
+const renderHomepage = (req, res, responseBody) => {
   let message = null;
   console.log("RENDER");
-  if(!(responseBody instanceof Array)){
+  if (!(responseBody instanceof Array)) {
     message = "API lookup error";
     responseBody = [];
-  } else{
-    if(!responseBody.length){
+  } else {
+    if (!responseBody.length) {
       message = "No places found nearby";
     }
   }
@@ -34,7 +34,7 @@ const renderHomepage = (req, res, responseBody) =>{
 
 const homelist = (req, res) => {
   const path = '/api/locations';
-  const requestOptions ={
+  const requestOptions = {
     url: `${apiOptions.server}${path}`,
     method: 'GET',
     json: {},
@@ -44,10 +44,10 @@ const homelist = (req, res) => {
       maxDistance: 200000
     }
   };
-  request(requestOptions, (err, {statusCode}, body) =>{
+  request(requestOptions, (err, { statusCode }, body) => {
     let data = [];
-    if(statusCode===200 && body.length >0){
-      data = body.map((item)=>{
+    if (statusCode === 200 && body.length > 0) {
+      data = body.map((item) => {
         item.distance = formatDistance(item.distance);
         return item;
       });
@@ -56,7 +56,7 @@ const homelist = (req, res) => {
   });
 };
 
-const renderDetailPage = (req, res, location) =>{
+const renderDetailPage = (req, res, location) => {
   res.render('location-info', {
     title: location.name,
     pageHeader: {
@@ -72,24 +72,24 @@ const renderDetailPage = (req, res, location) =>{
   });
 };
 
-const getLocationInfo = (req, res, callback)=>{
+const getLocationInfo = (req, res, callback) => {
   const path = `/api/locations/${req.params.locationid}`;
-  const requestOptions ={
+  const requestOptions = {
     url: `${apiOptions.server}${path}`,
     method: 'GET',
     json: {}
   };
   request(
     requestOptions,
-    (err, {statusCode}, body)=>{
-      if(statusCode===200){
+    (err, { statusCode }, body) => {
+      if (statusCode === 200) {
         const data = body;
         data.coords = {
           lng: body.coords[0],
           lat: body.coords[1]
         };
         callback(req, res, data);
-      } else{
+      } else {
         showError(req, res, statusCode);
       }
     }
@@ -100,13 +100,13 @@ const locationInfo = (req, res) => {
   getLocationInfo(req, res, (req, res, responseData) => renderDetailPage(req, res, responseData));
 }
 
-const showError = (req, res, status) =>{
+const showError = (req, res, status) => {
   let title = '';
   let content = '';
-  if (status ===404){
+  if (status === 404) {
     title = '404, page not found',
-    content = 'Oh dear. Looks like you can\'t find this page. Sorry.';
-  } else{
+      content = 'Oh dear. Looks like you can\'t find this page. Sorry.';
+  } else {
     title = `${status}, something's gone wrong`;
     content = 'Something, somewhere, has gone just a little bit wrong.';
   }
@@ -117,22 +117,22 @@ const showError = (req, res, status) =>{
   });
 }
 
-const renderReviewForm = (req, res, {name}) =>{
-  res.render('location-review-form',{
-      title: `Review ${name} on Loc8r` ,
-      pageHeader: { title: `Review ${name}` },
-      error: req.query.err
-    }
+const renderReviewForm = (req, res, { name }) => {
+  res.render('location-review-form', {
+    title: `Review ${name} on Loc8r`,
+    pageHeader: { title: `Review ${name}` },
+    error: req.query.err
+  }
   );
 }
 
 const addReview = (req, res) => {
   getLocationInfo(req, res,
-  (req, res, responseData) => renderReviewForm(req, res, responseData)
+    (req, res, responseData) => renderReviewForm(req, res, responseData)
   );
 };
 
-const doAddReview = (req, res) =>{
+const doAddReview = (req, res) => {
   const locationid = req.params.locationid;
   const path = `/api/locations/${locationid}/reviews`;
   const postData = {
@@ -145,20 +145,20 @@ const doAddReview = (req, res) =>{
     method: 'POST',
     json: postData
   };
-  if(!postData.author || !postData.rating || !postData.reviewText){
+  if (!postData.author || !postData.rating || !postData.reviewText) {
     res.redirect(`/location/${locationid}/review/new?err=val`);
-    } else{
-    request(requestOptions, (err, {statusCode}, {name}) =>{
-      if(statusCode === 201){//성공적인 POST의 STATUS는 200이 아닌 201임!
+  } else {
+    request(requestOptions, (err, { statusCode }, { name }) => {
+      if (statusCode === 201) {//성공적인 POST의 STATUS는 200이 아닌 201임!
         res.redirect(`/location/${locationid}`);
-      } else if(statusCode === 400 && name && name === 'ValidationError'){
+      } else if (statusCode === 400 && name && name === 'ValidationError') {
         res.redirect(`/location/${locationid}/review/new?err=val`); // 뷰어에게 문제점을 알려주기 위해 쿼리스트링으로 전달
-      } else{
+      } else {
         showError(req, res, statusCode);
       }
     });
   }
-}; 
+};
 
 module.exports = {
   homelist,
@@ -167,13 +167,13 @@ module.exports = {
   doAddReview
 };
 
-const formatDistance = (distance) =>{
+const formatDistance = (distance) => {
   let thisDistance = 0;
   let unit = 'm';
-  if (distance > 1000){
-    thisDistance = parseFloat(distance/1000).toFixed(1);
+  if (distance > 1000) {
+    thisDistance = parseFloat(distance / 1000).toFixed(1);
     unit = 'km';
-  } else{
+  } else {
     thisDistance = Math.floor(distance);
   }
   return thisDistance + unit;

@@ -1,53 +1,72 @@
 const mongoose = require('mongoose');
 const Loc = mongoose.model('Location');
 
-const doSetAverageRating = (location) =>{
-  if(location.reviews && location.reviews.length > 0){
+//2018250045이중혁
+const User = mongoose.model('User');
+const getAuthor = (req, res, callback) => {
+  if (req.payload && req.payload.email) {
+    User.findOne({ email: req.payload.email }).exec((err, user) => {
+      if (!user) { //토큰의 이메일을 db에서 찾지 못함
+        return res.status(404).json({ "message": "User not found" });
+      } else if (err) {
+        console.log(err);
+        return res.status(404).json(err);
+      }
+      callback(req, res, user.name); //찾음
+    })
+  } else { //토큰에 이메일이 없음
+    return res.status(404).json({ "message": "User not found" });
+  }
+}
+
+const doSetAverageRating = (location) => {
+  if (location.reviews && location.reviews.length > 0) {
     const count = location.reviews.length;
-    const total = location.reviews.reduce((acc, {rating}) =>{ //(previous value, current value)
+    const total = location.reviews.reduce((acc, { rating }) => { //(previous value, current value)
       return acc + rating;
     }, 0);
     location.rating = parseInt(total / count, 10); //두 번째 인자는 10진수를 의미
     location.save(err => {
-      if(err){
+      if (err) {
         console.log(err);
-      } else{
+      } else {
         console.log(`Average rating updated to ${location.rating}`);
       }
     });
   }
 };
 
-const updateAverageRating = (locationId) =>{
+const updateAverageRating = (locationId) => {
   Loc.findById(locationId)
     .select('rating reviews')
-    .exec((err, location) =>{
-      if(err){
+    .exec((err, location) => {
+      if (err) {
         console.log(err);
-      } else{
+      } else {
         doSetAverageRating(location);
       }
     });
 };
 
-const doAddReview = (req, res, location) =>{
-  if(!location){
+//2018250045이중혁
+const doAddReview = (req, res, location, author) => {
+  if (!location) {
     res
       .status(404)
-      .json({"message": "Location not found"});
-  } else{
-    const {author, rating, reviewText} = req.body;
+      .json({ "message": "Location not found" });
+  } else {
+    const { rating, reviewText } = req.body;
     location.reviews.push({
       author,
       rating,
       reviewText
     });
-    location.save((err, location) =>{
-      if(err){
+    location.save((err, location) => {
+      if (err) {
         res
           .status(400)
           .json(err);
-      } else{
+      } else {
         updateAverageRating(location._id);
         const thisReview = location.reviews.slice(-1).pop();
         res
@@ -63,26 +82,26 @@ const reviewsReadOne = (req, res) => {
     .findById(req.params.locationid)
     .select('name reviews')
     .exec((err, location) => {
-      if(!location){
+      if (!location) {
         return res
           .status(404)
-          .json({"message": "location not found"});
-      } else if(err){
+          .json({ "message": "location not found" });
+      } else if (err) {
         return res
           .status(404)
           .json(err);
       }
 
-      if(location.reviews && location.reviews.length > 0){
+      if (location.reviews && location.reviews.length > 0) {
         const review = location.reviews.id(req.params.reviewid);
 
-        if(!review){ //리뷰 목록 중에서 아이디 검색했는데 안나옴
+        if (!review) { //리뷰 목록 중에서 아이디 검색했는데 안나옴
           return res
             .status(404)
-            .json({"message": "wrong review ID"});
-        } else{ //성공
+            .json({ "message": "wrong review ID" });
+        } else { //성공
           const response = {
-            location:{
+            location: {
               name: location.name,
               id: req.params.locationid
             },
@@ -92,36 +111,39 @@ const reviewsReadOne = (req, res) => {
             .status(200)
             .json(response);
         }
-      } else{ //해당 Locaiton에 리뷰가 없음
+      } else { //해당 Locaiton에 리뷰가 없음
         return res
           .status(404)
-          .json({"message": "No reviews found"});
+          .json({ "message": "No reviews found" });
       }
     });
 };
+//2018250045이중혁
 const reviewsCreate = (req, res) => {
-  const locationId = req.params.locationid;
-  if (locationId){
-    Loc
-      .findById(locationId)
-      .select('reviews')
-      .exec((err, location) =>{
-        if(err){
-          res
-            .status(400)
-            .json(err);
-        } else{
-          doAddReview(req, res, location);
-        }
-      });
-  } else{
-    res
-      .status(404)
-      .json({"message": "Location not found"});
-  }
+  getAuthor(req, res, (req, res, userName) => {
+    const locationId = req.params.locationid;
+    if (locationId) {
+      Loc
+        .findById(locationId)
+        .select('reviews')
+        .exec((err, location) => {
+          if (err) {
+            res
+              .status(400)
+              .json(err);
+          } else {
+            doAddReview(req, res, location, userName);
+          }
+        });
+    } else {
+      res
+        .status(404)
+        .json({ "message": "Location not found" });
+    }
+  });
 };
 const reviewsUpdateOne = (req, res) => {
-  if(!req.params.locationid || !req.params.reviewid){
+  if (!req.params.locationid || !req.params.reviewid) {
     return res
       .status(404)
       .json({
@@ -132,36 +154,36 @@ const reviewsUpdateOne = (req, res) => {
   Loc
     .findById(req.params.locationid)
     .select('reviews')
-    .exec((err, location)=>{
-      if(!location){
+    .exec((err, location) => {
+      if (!location) {
         return res
           .status(404)
           .json({
             "message": "Location not found"
           });
-      } else if (err){
+      } else if (err) {
         return res
           .status(400)
           .json(err);
       }
-      if(location.reviews && location.reviews.length > 0){
+      if (location.reviews && location.reviews.length > 0) {
         const thisReview = location.reviews.id(req.params.reviewid);
-        if(!thisReview){ //리뷰ID로 리뷰를 찾지 못함.
+        if (!thisReview) { //리뷰ID로 리뷰를 찾지 못함.
           res
             .status(400)
             .json({
               "message": "Review not found"
             });
-        } else{
+        } else {
           thisReview.author = req.body.author;
           thisReview.rating = req.body.rating;
           thisReview.reviewText = req.body.reviewText;
-          location.save((err, location)=>{
-            if(err){
+          location.save((err, location) => {
+            if (err) {
               res
                 .status(404)
                 .json(err);
-            } else{
+            } else {
               updateAverageRating(location._id);
               res
                 .status(200)
@@ -169,22 +191,22 @@ const reviewsUpdateOne = (req, res) => {
             }
           });
         }
-      } else{ //해당 로케이션에 리뷰가 없다.
+      } else { //해당 로케이션에 리뷰가 없다.
         res
           .status(404)
           .json({
             "message": "No review to update"
           }
-        );
+          );
       }
     }
-  );
+    );
 };
 
 const reviewsDeleteOne = (req, res) => {
   console.log(req.params);
-  const {locationid, reviewid} = req.params;
-  if(!locationid || !reviewid){
+  const { locationid, reviewid } = req.params;
+  if (!locationid || !reviewid) {
     return res
       .status(404)
       .json({
@@ -194,40 +216,40 @@ const reviewsDeleteOne = (req, res) => {
   Loc
     .findById(locationid)
     .select('reviews')
-    .exec((err, location) =>{
-      if(!location){
+    .exec((err, location) => {
+      if (!location) {
         return res
           .status(404)
-          .json({"message": "Location not found"});
-      } else if(err){
+          .json({ "message": "Location not found" });
+      } else if (err) {
         return res
           .status(404)
-          .json({"message": "Location not found ERR"});
+          .json({ "message": "Location not found ERR" });
       }
-      if(location.reviews && location.reviews.length>0){
-        if(!location.reviews.id(reviewid)){
+      if (location.reviews && location.reviews.length > 0) {
+        if (!location.reviews.id(reviewid)) {
           return res
             .status(404)
-            .json({"message": "Review not found"});
-        } else{
+            .json({ "message": "Review not found" });
+        } else {
           location.reviews.id(reviewid).remove();
-          location.save(err =>{
-            if(err){
+          location.save(err => {
+            if (err) {
               return res
                 .status(404)
-                .json({"message": "Location save ERROR"});
-            } else{
-              updateAverageRating(location._id);  
+                .json({ "message": "Location save ERROR" });
+            } else {
+              updateAverageRating(location._id);
               return res
                 .status(204)
                 .json(null);
             }
           });
         }
-      } else{
+      } else {
         return res
           .status(404)
-          .json({"message": "No review to delete"});
+          .json({ "message": "No review to delete" });
       }
     });
 };
